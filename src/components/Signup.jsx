@@ -45,16 +45,10 @@ export default function Signup() {
                 password: user.password
             });
 
-            const { data } = response;
             // If signup successful, navigate to '/account' route
             if (response.status === 200) {
-                const token = data.token;
-                const storedToken = localStorage.setItem('token', token);
-
-                if (!storedToken) {
-                    console.log('Failed to store token');
-                    return;
-                }
+                const token = response.data.token;
+                localStorage.setItem('token', token);
                 setTimeout(() => {
                     navigate('/account');
                 }, 300);

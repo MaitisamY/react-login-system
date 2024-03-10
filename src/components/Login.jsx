@@ -42,10 +42,9 @@ export default function Login() {
                 password: user.password
             });
 
-            const { data } = response;
             // If login successful, navigate to '/account' route
             if (response.status === 200) {
-                const token = data.token;
+                const token = response.data.token;
                 localStorage.setItem('token', token);
                 setTimeout(() => {
                     navigate('/account');
@@ -120,7 +119,7 @@ export default function Login() {
                                 onChange={handleAgreement}
                             />
                             <label className="form-check-label" htmlFor="exampleCheck">
-                                I accept and agree to the <a href="#" className="btn-link">Terms and Conditions</a>
+                                I accept and agree to the <Link to="/terms" className="btn-link">Terms and Conditions</Link>
                             </label>
                         </div>
                     </div>

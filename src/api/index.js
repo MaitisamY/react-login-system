@@ -1,4 +1,5 @@
-import dotenv from 'dotenv';
+/* eslint-disable no-undef */
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -7,8 +8,6 @@ import pg from 'pg';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { check, validationResult } from 'express-validator';
-
-dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -38,7 +37,7 @@ app.use(session({
 // Routes
 app.get('/user', async (req, res) => {
     try {
-        const token = req.session.token;
+        const token = req.headers.authorization.split(' ')[1]; // Extract token from Authorization header
         if (!token) {
             return res.status(401).json({ message: 'Unauthorized' });
         }
@@ -46,11 +45,15 @@ app.get('/user', async (req, res) => {
         const userId = decodedToken.userId;
         const result = await db.query('SELECT * FROM users WHERE id = $1', [userId]);
         const user = result.rows[0];
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
         res.status(200).json({ name: user.name, email: user.email });
     } catch (error) {
-        res.status(401).json({ message: 'Unauthorized' });
+        res.status(403).json({ message: 'Invalid token' });
     }
 });
+
 
 app.post('/login', [
     check('email').isEmail().withMessage('Invalid email'),
@@ -119,7 +122,7 @@ app.post('/signup', [
             const user = insert.rows[0];
             const token = jwt.sign({ userId: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
             req.session.token = token; // Store token in session
-            res.status(200).json({ token, message: 'User created successfully' });
+            res.status(200).json({ token });
         }
     } catch (error) {
         console.error('Error:', error);

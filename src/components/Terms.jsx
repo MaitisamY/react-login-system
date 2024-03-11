@@ -17,7 +17,7 @@ export default function Terms() {
             </div>
             <div className="card-footer bg-white">
                 <div className="d-grid gap-2">
-                    <Link to="/login" className="btn btn-dark">Back to Login</Link>
+                    <Link to="/login" className="btn btn-link">Back to Login</Link>
                 </div>
             </div>
         </div>

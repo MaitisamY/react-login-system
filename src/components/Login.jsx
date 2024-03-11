@@ -16,6 +16,8 @@ export default function Login() {
         loginError: ''
     });
 
+    const [loading, setLoading] = useState(false);
+
     const navigate = useNavigate(); // Using useNavigate instead of useHistory
 
     const handleChange = (e) => {
@@ -36,12 +38,24 @@ export default function Login() {
 
     const handdleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true); // Show loader
+    
         try {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+    
             const response = await axios.post('http://localhost:3001/login', {
                 email: user.email,
                 password: user.password
             });
 
+            if(response.status === 401) {
+                setErrorMessage({
+                    ...errorMessage,
+                    loginError: response.data
+                });
+                return;
+            }
+    
             // If login successful, navigate to '/account' route
             if (response.status === 200) {
                 const token = response.data.token;
@@ -57,6 +71,8 @@ export default function Login() {
                 loginError: error.response.data
             });
             console.log(error.response.data);
+        } finally {
+            setLoading(false); // Hide loader regardless of success or failure
         }
     };
 
@@ -130,14 +146,14 @@ export default function Login() {
                                         "btn-secondary" : "btn-primary"}`} 
                             type="submit"
                         >
-                              Login
+                              Login { loading && <div className="spinner-border spinner-border-sm ms-2" role="status"></div> }
                         </button>
                     </div>
                 </form>
             </div>
             <div className="card-footer bg-white">
                 <p>Don't have an account? <Link to="/signup" className="btn-link">Signup</Link></p>
-                { errorMessage.loginError && <small className="form-text text-danger">{errorMessage.loginError.message}</small> }
+                { errorMessage.loginError && <h5 className="form-text text-danger">{errorMessage.loginError.message}</h5> }
             </div>
         </div>
     )

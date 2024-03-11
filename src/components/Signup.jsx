@@ -9,14 +9,19 @@ export default function Signup() {
         email: '',
         password: ''
     });
+
     const [showPassword, setShowPassword] = useState(false);
+
     const [agreement, setAgreement] = useState(false);
+
     const [errorMessage, setErrorMessage] = useState({
         name: '',
         email: '',
         password: '',
         signupError: ''
     });
+
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate(); // Using useNavigate instead of useHistory
 
@@ -38,13 +43,18 @@ export default function Signup() {
 
     const handdleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true); // Show loader
+    
         try {
+            // Simulate a delay of 1 second before making the API call
+            await new Promise(resolve => setTimeout(resolve, 1000));
+    
             const response = await axios.post('http://localhost:3001/signup', {
                 name: user.name,
                 email: user.email,
                 password: user.password
             });
-
+    
             // If signup successful, navigate to '/account' route
             if (response.status === 200) {
                 const token = response.data.token;
@@ -60,8 +70,11 @@ export default function Signup() {
                 signupError: error.response.data
             });
             console.log(error.response.data);
+        } finally {
+            setLoading(false); // Hide loader regardless of success or failure
         }
     };
+    
 
     return (
         <div className="card col-sm-10 col-md-6 col-lg-4 col-xl-3 col-xxl-3 box-shadow bg-transparent">
@@ -84,7 +97,7 @@ export default function Signup() {
                             value={user.name}
                             onChange={handleChange}
                         />
-                        <small className="form-text text-sm text-muted">Min 4 characters</small>
+                        <small className="form-text text-sm text-muted">Minimum 4 characters required</small>
                         { errorMessage.name && <small className="form-text text-danger">{errorMessage.name}</small> }
                     </div>
                     <div className="mb-3">
@@ -98,7 +111,7 @@ export default function Signup() {
                             value={user.email}
                             onChange={handleChange}
                         />
-                        <small className="form-text text-sm text-muted">Min 6 characters</small>
+                        <small className="form-text text-sm text-muted">Minimum 6 characters required</small>
                         { errorMessage.email && <small className="form-text text-danger">{errorMessage.email}</small> }
                     </div>
                     <div className="mb-3">
@@ -124,7 +137,7 @@ export default function Signup() {
                               { showPassword ? <BsEyeSlash /> : <BsEye /> }
                           </button>
                       </div>
-                      <small className="form-text text-sm text-muted">Min 6 characters</small>
+                      <small className="form-text text-sm text-muted">Minimum 6 characters required</small>
                       { errorMessage.password && <small className="form-text text-danger">{errorMessage.password}</small> }
                     </div>
                     <div className="mb-3">
@@ -149,7 +162,7 @@ export default function Signup() {
                                         "btn-secondary" : "btn-primary"}`} 
                             type="submit"
                         >
-                              Signup
+                              Signup { loading && <div className="spinner-border spinner-border-sm ms-2" role="status"></div> }
                         </button>
                     </div>
                 </form>
@@ -157,7 +170,7 @@ export default function Signup() {
             <div className="card-footer bg-white">
                 <p>Already have an account? <Link to="/login" className="btn-link">Sign in</Link></p>
                 {  
-                    errorMessage.signupError && <small className="form-text text-danger">{errorMessage.signupError.message}</small> 
+                    errorMessage.signupError && <h5 className="form-text text-danger">{errorMessage.signupError.message}</h5> 
                 }
             </div>
         </div>
